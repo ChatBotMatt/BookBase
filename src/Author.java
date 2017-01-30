@@ -9,7 +9,7 @@ public class Author {
 		this.name = name;
 		this.genre = genre;
 		if (books == null){
-			this.books = new ArrayList<Book>(5);
+			this.books = new ArrayList<Book>();
 		}
 		else{
 			this.books = books;

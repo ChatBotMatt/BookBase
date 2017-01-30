@@ -1,5 +1,5 @@
 # BookBase
-A Book Database intended for user-friendly operations of tracking a user's owned books.
+A Book Database intended for user-friendly storage and tracking of a user's owned books.
 
 Users add information about a given book via a simple GUI, the book is then stored in a SQLite database.
 

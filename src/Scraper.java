@@ -64,7 +64,7 @@ public class Scraper {
 		String description = doc.getElementById(descField).child(1).text();
 		Author author = new Author(doc.getElementsByClass(authorField).first().text());
 		float rating = Float.parseFloat(doc.getElementsByClass("average").first().text());
-		Book newBook = new Book(title,description,series,num,author,0,rating,0);
+		Book newBook = new Book();//(title,description,series,num,author,0,rating,0); TODO
 		System.out.println(newBook.toString());
 		return newBook;
 	}

@@ -1,5 +1,6 @@
 import javafx.scene.control.Label;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.TilePane;
@@ -27,7 +28,10 @@ public class InputGroup extends TilePane {
 		getChildren().add(input);
 		getChildren().add(submit);
 		
-		setHgap(0);
+		setPadding(new Insets(0,0,0,-30));
+		setHgap(-20);
+		
+		//System.out.println();
 	}
 	
 	public InputGroup(String inputText, String labelText, String buttonText){

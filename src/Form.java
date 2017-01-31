@@ -5,7 +5,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -39,7 +42,7 @@ public class Form {
 	private Label status;
 
 	private ArrayList<String> genreList;
-	private Button submitGenre;
+
 	private Label submittedGenres;
 
 	public Form(Stage primaryStage) {
@@ -59,7 +62,6 @@ public class Form {
 		genre.setSubmitVisible(true);
 		rating = new InputGroup(new NumericTextField("",0,10), new Label("Book Rating"), new Button());
 		submit = new Button("Submit Book");
-		submitGenre = new Button("Submit Genre");
 		
 		//blank = new TextField();
 		//blank.setVisible(false);
@@ -82,11 +84,12 @@ public class Form {
 				if (genre.validate()) {
 					if (!genreList.contains(genre.getText())){
 						genreList.add(genre.getText());
-						status.setText("Genre submitted!");
+						new Alert(AlertType.INFORMATION,"The genre has been submitted!").show();
 						submittedGenres.setText(submittedGenres.getText() + "\n" + genre.getText());
 					}		
 				} else {
-					status.setText("Enter a genre first!");
+					new Alert(AlertType.ERROR,"You can't submit a blank genre!").show();
+					
 				}
 			}
 
@@ -105,7 +108,6 @@ public class Form {
 		left.getChildren().addAll(groups);
 		
 		bottom.getChildren().add(submit);
-		bottom.getChildren().add(submitGenre);
 
 		center.setText("No book info is yet available. Submit some!");
 		//updateInfo();
@@ -122,7 +124,6 @@ public class Form {
 	}
 
 	private boolean validateFields() {
-		boolean valid = false;
 		for (InputGroup group: groups){
 			if (!group.validate()){
 				return false;
@@ -161,13 +162,13 @@ public class Form {
 	private boolean submit() {
 		genre.getSubmit().fire();
 		if (validateFields()) {
-			status.setText("Input accepted!");
+			new Alert(AlertType.INFORMATION,"The book has been submitted!").show();
 			updateInfo();
 			Book newBook = createBook();
 			System.out.println(newBook);
 			return true;
 		} else {
-			status.setText("Input invalid!");
+			new Alert(AlertType.ERROR,"One or more fields are invalid. All fields must contain info, and Rating must have a numeric value between 0 and 10 inclusive.").show();
 			return false;
 		}
 

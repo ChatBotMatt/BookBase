@@ -1,49 +1,39 @@
-
+//TODO TextField.disable() when inSeries is false for SeriesNo and Series name
 import java.util.ArrayList;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Form {
+	
+	private Controller controller;
 
 	private Stage stage;
 	private BorderPane border;
 	private HBox bottom;
 	private VBox left;
-	
-	//private GridPane grid;
+
 	private Text center;
-	
+
 	private ArrayList<InputGroup> groups;
 
 	private InputGroup title;
 	private InputGroup author;
 	private InputGroup genre;
 	private InputGroup rating;
-	
+
 	private Button submit;
-	
-	//private TextField blank; //Used to create an empty row in the GridPane.
-	private Label status;
 
 	private ArrayList<String> genreList;
-
-	private Label submittedGenres;
 
 	public Form(Stage primaryStage) {
 		stage = primaryStage;
@@ -51,22 +41,22 @@ public class Form {
 		border = new BorderPane(center = new Text());
 		border.setLeft(left = new VBox(5));
 		border.setBottom(bottom = new HBox(5));
-		
+
 		genreList = new ArrayList<String>();
 	}
 
 	public void start() {
+		controller = new Controller(this);
+		
 		title = new InputGroup("Book Name");
 		author = new InputGroup("Book Author");
-		genre = new InputGroup("Book Genre","Submit");
+		genre = new InputGroup("Book Genre", "Submit");
 		genre.setSubmitVisible(true);
-		rating = new InputGroup(new NumericTextField("",0,10), new Label("Book Rating"), new Button());
+		rating = new InputGroup(new ValidityTextField("", 0, 10), new Label("Book Rating"), new Button(), new CheckBox());
 		submit = new Button("Submit Book");
-		
+
 		//blank = new TextField();
 		//blank.setVisible(false);
-		status = new Label();
-		submittedGenres = new Label();
 
 		submit.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -82,14 +72,13 @@ public class Form {
 			@Override
 			public void handle(ActionEvent event) {
 				if (genre.validate()) {
-					if (!genreList.contains(genre.getText())){
+					if (!genreList.contains(genre.getText())) {
 						genreList.add(genre.getText());
-						new Alert(AlertType.INFORMATION,"The genre has been submitted!").show();
-						submittedGenres.setText(submittedGenres.getText() + "\n" + genre.getText());
-					}		
+						//new Alert(AlertType.INFORMATION, "The genre has been submitted!").show();
+					}
 				} else {
-					new Alert(AlertType.ERROR,"You can't submit a blank genre!").show();
-					
+					//new Alert(AlertType.ERROR, "You can't submit a blank genre!").show();
+
 				}
 			}
 
@@ -98,22 +87,18 @@ public class Form {
 		//grid.getColumnConstraints().add(new ColumnConstraints(250)); //Makes it wide enough to fit the full text for genre/rating.
 		//grid.setGridLinesVisible(true);
 		//left.setVgap(10);
-		
+
 		groups = new ArrayList<InputGroup>(4);
 		groups.add(title);
 		groups.add(author);
 		groups.add(genre);
 		groups.add(rating);
 		
-		left.getChildren().addAll(groups);
-		
-		bottom.getChildren().add(submit);
+		controller.setup();
 
-		center.setText("No book info is yet available. Submit some!");
-		//updateInfo();
-		
-		//left.getChildren().add(submittedGenres);
-		bottom.getChildren().add(status);
+		left.getChildren().addAll(groups);
+
+		bottom.getChildren().add(submit);
 
 		Scene scene = new Scene(border, 300, 300);
 
@@ -123,65 +108,8 @@ public class Form {
 
 	}
 
-	private boolean validateFields() {
-		for (InputGroup group: groups){
-			if (!group.validate()){
-				return false;
-			}
-		}
-		return (rating.validate(true));
-		//return (title.validate() && author.validate() && genre.validate() && rating.validate(true));
-		//return (validate(title) && validate(author) && validate(genre) && rating.validate());
-	}
-
-	/*private boolean validateNumeric(TextField field, Label status, int min, int max) {
-		if (validate(field)) {
-			try {
-				double number = Double.valueOf(field.getText());
-				if (min <= number && number <= max) {
-					return true;
-				}
-			} catch (NumberFormatException e) {
-				status.setText("Please enter a numeric value.");
-				return false;
-			}
-		} else {
-			return false;
-		}
-		return false;
-	}*/
-
-	/*private boolean validate(TextField field) {
-		if (field.getLength() > 0) {
-			return true;
-		} else {
-			return false;
-		}
-	}*/
-
-	private boolean submit() {
-		genre.getSubmit().fire();
-		if (validateFields()) {
-			new Alert(AlertType.INFORMATION,"The book has been submitted!").show();
-			updateInfo();
-			Book newBook = createBook();
-			System.out.println(newBook);
-			return true;
-		} else {
-			new Alert(AlertType.ERROR,"One or more fields are invalid. All fields must contain info, and Rating must have a numeric value between 0 and 10 inclusive.").show();
-			return false;
-		}
-
-	}
-	
-	private Book createBook(){
-		Book newBook = new Book();
-		newBook.setTitle(title.getText());
-		newBook.setAuthor(author.getText());
-		newBook.setGenre(genreList);
-		newBook.setRating(rating.getNumber());
-		
-		return newBook;
+	private void submit() {
+		controller.submit().show(); //Display the appropriate status after submission.
 	}
 
 	/**
@@ -193,19 +121,131 @@ public class Form {
 		blank.setVisible(false);
 		return blank;
 	}*/
-	
-	private void updateInfo(){
+
+	public void updateInfo() {
 		String title = this.title.getText();
 		String authorName = author.getText();
 		float rating = this.rating.getNumber();
-		
+
 		String updated = "The currently submitted book's info is: \n\n" + title + "\nWritten by: " + authorName + "\n\nIn the following genres: \n";
-		for (String genre: genreList){
+		for (String genre : genreList) {
 			updated += genre;
 			updated += "\n";
 		}
-		updated+= "\nAnd is rated " + rating + " out of 10.";
+		updated += "\nAnd is rated " + rating + " out of 10.";
 		center.setText(updated);
+	}
+	
+	public void clearFields(){
+		for (InputGroup group: groups){
+			if (!group.isChecked()){
+				group.clear();
+			}
+		}
+	}
+
+	public Controller getControl() {
+		return controller;
+	}
+
+	public void setControl(Controller control) {
+		this.controller = control;
+	}
+
+	public Stage getStage() {
+		return stage;
+	}
+
+	public void setStage(Stage stage) {
+		this.stage = stage;
+	}
+
+	public BorderPane getBorder() {
+		return border;
+	}
+
+	public void setBorder(BorderPane border) {
+		this.border = border;
+	}
+
+	public HBox getBottom() {
+		return bottom;
+	}
+
+	public void setBottom(HBox bottom) {
+		this.bottom = bottom;
+	}
+
+	public VBox getLeft() {
+		return left;
+	}
+
+	public void setLeft(VBox left) {
+		this.left = left;
+	}
+
+	public Text getCenter() {
+		return center;
+	}
+
+	public void setCenter(Text center) {
+		this.center = center;
+	}
+
+	public ArrayList<InputGroup> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(ArrayList<InputGroup> groups) {
+		this.groups = groups;
+	}
+
+	public InputGroup getTitle() {
+		return title;
+	}
+
+	public void setTitle(InputGroup title) {
+		this.title = title;
+	}
+
+	public InputGroup getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(InputGroup author) {
+		this.author = author;
+	}
+
+	public InputGroup getGenre() {
+		return genre;
+	}
+
+	public void setGenre(InputGroup genre) {
+		this.genre = genre;
+	}
+
+	public InputGroup getRating() {
+		return rating;
+	}
+
+	public void setRating(InputGroup rating) {
+		this.rating = rating;
+	}
+
+	public Button getSubmit() {
+		return submit;
+	}
+
+	public void setSubmit(Button submit) {
+		this.submit = submit;
+	}
+
+	public ArrayList<String> getGenreList() {
+		return genreList;
+	}
+
+	public void setGenreList(ArrayList<String> genreList) {
+		this.genreList = genreList;
 	}
 
 }

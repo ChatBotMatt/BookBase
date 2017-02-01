@@ -173,7 +173,6 @@ public class Book implements Serializable{
 		return serialVersionUID;
 	}
 	
-
 	/*@Override
 	public String toString() {
 		String toString = "Title: " + title + ".\nDescription: " + description + "\n";

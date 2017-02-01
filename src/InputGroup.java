@@ -2,86 +2,107 @@ import javafx.scene.control.Label;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
+import javafx.scene.text.Text;
 
 /**
  * A group of Nodes that every submission "unit" needs: Describing label, Input field, optional Submit Button.
  * @author Matthew
  *
  */
-public class InputGroup extends TilePane {
+public class InputGroup extends GridPane {
 
+	private CheckBox check;
 	private Label descriptor;
 	private Button submit;
-	private TextField input;
-	
-	public InputGroup(TextField input, Label label, Button submit) {
+	private ValidityTextField input;
+
+	public InputGroup(ValidityTextField input, Label label, Button submit, CheckBox check) {
 		this.input = input;
 		this.descriptor = label;
 		this.submit = submit;
+		this.check = check;
 		
-		//setAlignment(Pos.CENTER);
 		submit.setVisible(false);
+		check.setAllowIndeterminate(false);
+
+		add(check,0,0);
+		add(label,1,0);
+		add(input,2,0);
+		add(submit,3,0);
 		
-		getChildren().add(label);
-		getChildren().add(input);
-		getChildren().add(submit);
+		/*double width = check.getLayoutBounds().getWidth();
+		getColumnConstraints().add(new ColumnConstraints(width));
+		getColumnConstraints().add(new ColumnConstraints(label.getLayoutBounds().getWidth()));
+		getColumnConstraints().add(new ColumnConstraints(input.getLayoutBounds().getWidth()));
+		getColumnConstraints().add(new ColumnConstraints(submit.getLayoutBounds().getWidth()));*/
+
+		//setPadding(new Insets(0, 0, 0, -30));
+		check.setPadding(new Insets(10,10,10,10));
+		setHgap(10);
+		//setGridLinesVisible(true);
 		
-		setPadding(new Insets(0,0,0,-30));
-		setHgap(-20);
-		
-		//System.out.println();
 	}
 	
-	public InputGroup(String inputText, String labelText, String buttonText){
-		this(new TextField(inputText), new Label(labelText), new Button(buttonText));
+	public InputGroup(String inputText, String labelText, String buttonText, CheckBox check){
+		this(new ValidityTextField(inputText), new Label(labelText), new Button(buttonText),check);
 	}
-	
-	public InputGroup(String labelText, String buttonText){
-		this("",labelText,buttonText);
+
+	public InputGroup(String inputText, String labelText, String buttonText) {
+		this(inputText, labelText, buttonText, new CheckBox());
 	}
-	
+
+	public InputGroup(String labelText, String buttonText) {
+		this("", labelText, buttonText);
+	}
+
 	public InputGroup(String labelText) {
-		this(labelText,"");
+		this(labelText, "");
 	}
-	
+
 	public InputGroup() {
 		this("");
 	}
 	
-	public boolean validate(boolean numeric){
-		if (numeric){
+	public void clear(){
+		input.clear();
+	}
+
+	/*public boolean validate(boolean numeric) { //TODO Delete/move to MVC
+		if (numeric) {
 			NumericTextField num = (NumericTextField) input;
 			return num.validate();
-		}
-		else{
-			if (input.getLength() > 0){
+		} else {
+			if (input.getLength() > 0) {
 				return true;
 			}
 		}
 		return false;
+	}*/
+
+	public boolean validate() {
+		return input.validate();
 	}
-	
-	public boolean validate(){
-		return validate(false);
-	}
-	
-	public String getText(){
+
+	public String getText() {
 		return input.getText();
 	}
-	
-	public float getNumber(){
+
+	public float getNumber() {
 		float num;
-		if(input.getText().matches("^[0-9]*\\.?[0-9]*$")){
+		if (input.getText().matches("^[0-9]*\\.?[0-9]*$")) {
 			num = Float.valueOf(input.getText());
 			return num;
-		}
-		else{
+		} else {
 			throw new NumberFormatException("Not a numeric field.");
 		}
 	}
-	
+
 	/*public void setDescriptorPadding(int top, int bot, int left, int right){
 		descriptor.setPadding(new Insets(top,right,bot,left));
 	}
@@ -106,22 +127,21 @@ public class InputGroup extends TilePane {
 		submit.setPadding(new Insets(pad));
 	}*/
 	
-	public void setSubmitVisible(boolean visible){
+	public boolean isChecked(){
+		return check.isSelected();
+	}
+
+	public void setSubmitVisible(boolean visible) {
 		submit.setVisible(visible);
 	}
-	
-	public void setInputVisible(boolean visible){
+
+	public void setInputVisible(boolean visible) {
 		input.setVisible(visible);
 	}
-	
-	public void setDescriptorVisible(boolean visible){
+
+	public void setDescriptorVisible(boolean visible) {
 		descriptor.setVisible(visible);
 	}
-	
-	
-	
-	
-	
 
 	public Label getDescriptor() {
 		return descriptor;
@@ -143,8 +163,16 @@ public class InputGroup extends TilePane {
 		return input;
 	}
 
-	public void setInput(TextField input) {
+	public void setInput(ValidityTextField input) {
 		this.input = input;
+	}
+	
+	public void setCheckAllowIndeterminate(boolean indeterminate){
+		check.setAllowIndeterminate(indeterminate);
+	}
+	
+	public boolean getCheckAllowIndeterminate(boolean indeterminate){
+		return check.isAllowIndeterminate();
 	}
 
 }

@@ -13,7 +13,7 @@ public class App extends Application{
 	String testURL = "https://www.goodreads.com/book/show/13569581-blood-song?ac=1&from_search=true";
 	Form form;
 	
-	public void runApp() throws IOException{
+	private void runApp() throws IOException{
 		Scraper scraper = new Scraper();
 	}
 	

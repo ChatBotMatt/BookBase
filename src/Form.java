@@ -1,9 +1,12 @@
 //TODO TextField.disable() when inSeries is false for SeriesNo and Series name
 import java.util.ArrayList;
+import java.util.Date;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -30,11 +33,12 @@ public class Form {
 	private InputGroup author;
 	private InputGroup genre;
 	private InputGroup rating;
+	private InputGroup timesRead;
+	private InputGroup pageCount;
+	private InputGroup pubDate;
 
 	private Button submit;
-
-	private ArrayList<String> genreList;
-
+	
 	public Form(Stage primaryStage) {
 		stage = primaryStage;
 
@@ -42,7 +46,6 @@ public class Form {
 		border.setLeft(left = new VBox(5));
 		border.setBottom(bottom = new HBox(5));
 
-		genreList = new ArrayList<String>();
 	}
 
 	public void start() {
@@ -50,36 +53,43 @@ public class Form {
 		
 		title = new InputGroup("Book Name");
 		author = new InputGroup("Book Author");
-		genre = new InputGroup("Book Genre", "Submit");
-		genre.setSubmitVisible(true);
+		genre = new InputGroup("Book Genre", "?");
+		genre.setButtonVisible(true);
 		rating = new InputGroup(new ValidityTextField("", 0, 10), new Label("Book Rating"), new Button(), new CheckBox());
+		timesRead = new InputGroup(new ValidityTextField("", 0, Float.MAX_VALUE), new Label("Times Read"), new Button(), new CheckBox());
+		pageCount = new InputGroup(new ValidityTextField("", 0, Float.MAX_VALUE), new Label("Page Count"), new Button(), new CheckBox());
+		pubDate = new InputGroup("Publication Date (DD/MM/YYYY)");
+		
 		submit = new Button("Submit Book");
-
-		//blank = new TextField();
-		//blank.setVisible(false);
-
+		
+		Validator numericValidator = new Validator(){
+			
+			@Override
+			public boolean validate(String data){
+				return validateEmpty(data) && validateNumber(data);
+			}
+		};
+		
+		Validator dateValidator = new Validator(){
+			
+			@Override
+			public boolean validate(String data){
+				return validateEmpty(data) && validateDate(data);
+			}
+		};
+		
+		rating.setValidator(numericValidator);
+		timesRead.setValidator(numericValidator);
+		pageCount.setValidator(numericValidator);
+		pubDate.setValidator(dateValidator);
+		
+		//test.getInput().setValidator(testVal);
+		
 		submit.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent event) {
 				submit(); //TODO
-			}
-
-		});
-
-		genre.getSubmit().setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				if (genre.validate()) {
-					if (!genreList.contains(genre.getText())) {
-						genreList.add(genre.getText());
-						//new Alert(AlertType.INFORMATION, "The genre has been submitted!").show();
-					}
-				} else {
-					//new Alert(AlertType.ERROR, "You can't submit a blank genre!").show();
-
-				}
 			}
 
 		});
@@ -93,6 +103,9 @@ public class Form {
 		groups.add(author);
 		groups.add(genre);
 		groups.add(rating);
+		groups.add(timesRead);
+		groups.add(pageCount);
+		groups.add(pubDate);
 		
 		controller.setup();
 
@@ -122,17 +135,27 @@ public class Form {
 		return blank;
 	}*/
 
-	public void updateInfo() {
-		String title = this.title.getText();
-		String authorName = author.getText();
-		float rating = this.rating.getNumber();
+	/**
+	 * Updates the display information for the current book.
+	 * @param genres The book's genres. //TODO Make it take a Book object and build from that instead.
+	 */
+	public void updateInfo(Book submitBook) {
+		String title = submitBook.getTitle();
+		String authorName = submitBook.getAuthor().getName();
+		float rating = submitBook.getRating();
+		int timesRead = submitBook.getTimesRead();
+		int pageCount = submitBook.getPageCount();
+		String pubDate = submitBook.getPubDateAsString();
 
-		String updated = "The currently submitted book's info is: \n\n" + title + "\nWritten by: " + authorName + "\n\nIn the following genres: \n";
-		for (String genre : genreList) {
-			updated += genre;
-			updated += "\n";
+		String updated = "The currently submitted book's info is: \n\nIt is named " + title + "\nIt was written by: " + authorName + "\n\nIn the following genres: \n";
+		if (submitBook.getGenre().size() > 0){
+			for (String genre: submitBook.getGenre()){
+				genre.trim();
+				updated += genre;
+				updated += "\n";
+			}
 		}
-		updated += "\nAnd is rated " + rating + " out of 10.";
+		updated += "\nAnd is rated " + rating + " out of 10. \nIt has " + pageCount + " pages.\n\nYou have read it " + timesRead + " times.\nIt was published at " + pubDate + ".\n";
 		center.setText(updated);
 	}
 	
@@ -232,20 +255,36 @@ public class Form {
 		this.rating = rating;
 	}
 
+	public InputGroup getTimesRead() {
+		return timesRead;
+	}
+
+	public void setTimesRead(InputGroup timesRead) {
+		this.timesRead = timesRead;
+	}
+
+	public InputGroup getPageCount() {
+		return pageCount;
+	}
+
+	public void setPageCount(InputGroup pageCount) {
+		this.pageCount = pageCount;
+	}
+
+	public InputGroup getPubDate() {
+		return pubDate;
+	}
+
+	public void setPubDate(InputGroup pubDate) {
+		this.pubDate = pubDate;
+	}
+
 	public Button getSubmit() {
 		return submit;
 	}
 
 	public void setSubmit(Button submit) {
 		this.submit = submit;
-	}
-
-	public ArrayList<String> getGenreList() {
-		return genreList;
-	}
-
-	public void setGenreList(ArrayList<String> genreList) {
-		this.genreList = genreList;
 	}
 
 }

@@ -1,5 +1,6 @@
 import java.util.Date;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class Book implements Serializable{
@@ -132,8 +133,8 @@ public class Book implements Serializable{
 		return genre;
 	}
 
-	public void setGenre(ArrayList<String> genre) {
-		this.genre = genre;
+	public void setGenre(ArrayList<String> genres) {
+		this.genre = genres;
 	}
 	
 	/**
@@ -144,9 +145,20 @@ public class Book implements Serializable{
 		this.genre = new ArrayList<String>(1);
 		this.genre.add(genre);
 	}
+	
+	public void setGenre(String[] genres) {
+		genre = new ArrayList<String>(genres.length);
+		for (int i = 0; i < genres.length; i++){
+			genre.add(genres[i]);
+		}
+	}
 
 	public Date getPubDate() {
 		return pubDate;
+	}
+	
+	public String getPubDateAsString(){
+		return new SimpleDateFormat("dd/MM/yyyy").format(pubDate);
 	}
 
 	public void setPubDate(Date pubDate) {

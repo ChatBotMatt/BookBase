@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
 public class Author {
-	String name;
-	ArrayList<Book> books;
-	String genre = "Unknown";
+	private String name;
+	private ArrayList<Book> books;
+	private String genre = "Unknown";
 
 	public Author(String name, ArrayList<Book> books, String genre) {
 		this.name = name;
@@ -26,6 +26,30 @@ public class Author {
 
 	public Author(String name) {
 		this(name,null,"Unknown");
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public ArrayList<Book> getBooks() {
+		return books;
+	}
+
+	public void setBooks(ArrayList<Book> books) {
+		this.books = books;
+	}
+
+	public String getGenre() {
+		return genre;
+	}
+
+	public void setGenre(String genre) {
+		this.genre = genre;
 	}
 
 	@Override

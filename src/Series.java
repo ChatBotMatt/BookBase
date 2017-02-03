@@ -1,87 +1,104 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Series{
-    private static Map<String,Series> series = new HashMap<String,Series>();
-    
-    private String name;
+public class Series implements Serializable{
+   
+	private static final long serialVersionUID = -4549229975279965862L;
+	
+	private String name;
     private Author author;
-    private ArrayList<Book> books;
+    private ArrayList<Book> books = new ArrayList<Book>();
     
-    private Series(String name, Author author, ArrayList<Book> books){
-    	if (books == null){
-    		books = new ArrayList<Book>();
+    private Series(){
+        
+    }
+	
+    public boolean checkBook(String bookname){
+    	for (Book book: books){
+    		if (book.getTitle().equals(bookname)){
+    			return true;
+    		}
     	}
-    	this.name = name;
-    	this.author = author;
-    	this.books = books;
+    	return false;
     }
     
-    private Series(String name, Author author){ //TODO Needed?
-        this(name,author,null);
-    }
-	
-	public static Series findOrCreate(String name, Author author, ArrayList<Book> books){
-		Series series = null;
-		try{
-			series = findSeries(name);
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Author getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(Author author) {
+		this.author = author;
+	}
+
+	public ArrayList<Book> getBooks() {
+		return books;
+	}
+
+	public void setBooks(ArrayList<Book> books) {
+		this.books = books;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((author == null) ? 0 : author.hashCode());
+		result = prime * result + ((books == null) ? 0 : books.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
 		}
-		catch(NoSuchSeriesException e){
-			try {
-				series = createSeries(name,author,books);
-			} catch (SeriesExistsException e2) {
-				e.printStackTrace();
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Series other = (Series) obj;
+		if (author == null) {
+			if (other.author != null) {
+				return false;
 			}
+		} else if (!author.equals(other.author)) {
+			return false;
 		}
-		return series;
-	}
-	
-	public static Series findSeries(String name) throws NoSuchSeriesException{
-		if (series.containsKey(name)){
-            return series.get(name);
-        }
-		else{
-			throw new NoSuchSeriesException();
+		if (books == null) {
+			if (other.books != null) {
+				return false;
+			}
+		} else if (!books.equals(other.books)) {
+			return false;
 		}
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		return true;
 	}
-	
-	/**
-	* Returns true if a new series is made and added, False if the Series already exists and is thus not added.
-	 * @throws SeriesExistsException 
-	*/
-	public static Series createSeries(String name, Author author, ArrayList<Book> books) throws SeriesExistsException{
-		if (series.containsKey(name)){
-            throw new SeriesExistsException();
-        }
-        else{
-			Series mySeries = new Series(name, author, books);
-			series.put(name,mySeries);
-            return mySeries;
-        }
-	}
-    
-    public static Series getSeries(String name, Author author, ArrayList<Book> books){
-        if (series.containsKey(name)){
-            return series.get(name);
-        }
-        else{
-			Series mySeries = new Series(name, author, books);
-			series.put(name,mySeries);
-            return mySeries;
-        }
-    }
-    
-    public static Series getSeries(String name, Author author){
-    	ArrayList<Book> books = new ArrayList<Book>(3);
-    	return getSeries(name,author,books);
-    }
-    
-    public static Series getSeries(String name){
-    	return getSeries(name,new Author("Unknown"));
-    }
-    
-    public String toString(){
+
+	public String toString(){
     	return name + " was written by " + author + " and contains " + books.size() + " books.";
     }
 }

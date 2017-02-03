@@ -208,4 +208,20 @@ public class InputGroup extends GridPane {
 		return input.getValidator();
 	}
 
+	public CheckBox getCheck() {
+		return check;
+	}
+
+	public void setCheck(CheckBox check) {
+		this.check = check;
+	}
+
+	public Effect getValidEffect() {
+		return validEffect;
+	}
+
+	public Effect getInvalidEffect() {
+		return invalidEffect;
+	}
+
 }

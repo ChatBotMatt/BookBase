@@ -1,12 +1,9 @@
 //TODO TextField.disable() when inSeries is false for SeriesNo and Series name
 import java.util.ArrayList;
-import java.util.Date;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -24,6 +21,7 @@ public class Form {
 	private BorderPane border;
 	private HBox bottom;
 	private VBox left;
+	private HBox top;
 
 	private Text center;
 
@@ -38,6 +36,7 @@ public class Form {
 	private InputGroup pubDate;
 
 	private Button submit;
+	private CheckBox masterCheck;
 	
 	public Form(Stage primaryStage) {
 		stage = primaryStage;
@@ -45,6 +44,7 @@ public class Form {
 		border = new BorderPane(center = new Text());
 		border.setLeft(left = new VBox(5));
 		border.setBottom(bottom = new HBox(5));
+		border.setTop(top = new HBox());
 
 	}
 
@@ -61,6 +61,9 @@ public class Form {
 		pubDate = new InputGroup("Publication Date (DD/MM/YYYY)");
 		
 		submit = new Button("Submit Book");
+		masterCheck = new CheckBox();
+		masterCheck.setAllowIndeterminate(false);
+		masterCheck.setPadding(new Insets(30,10,10,10)); //TODO Make HBox take that space itself, instead?
 		
 		Validator numericValidator = new Validator(){
 			
@@ -110,13 +113,16 @@ public class Form {
 		controller.setup();
 
 		left.getChildren().addAll(groups);
+		top.getChildren().add(masterCheck);
 
 		bottom.getChildren().add(submit);
 
 		Scene scene = new Scene(border, 300, 300);
-
+		
 		stage.setTitle("BookBase");
 		stage.setScene(scene);
+		stage.setMaxHeight(800);
+		stage.setMaxWidth(1000);
 		stage.show();
 
 	}
@@ -277,6 +283,22 @@ public class Form {
 
 	public void setPubDate(InputGroup pubDate) {
 		this.pubDate = pubDate;
+	}
+
+	public HBox getTop() {
+		return top;
+	}
+
+	public void setTop(HBox top) {
+		this.top = top;
+	}
+
+	public CheckBox getMasterCheck() {
+		return masterCheck;
+	}
+
+	public void setMasterCheck(CheckBox masterCheck) {
+		this.masterCheck = masterCheck;
 	}
 
 	public Button getSubmit() {

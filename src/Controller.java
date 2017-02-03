@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.ColumnConstraints;
@@ -7,9 +9,12 @@ import javafx.scene.layout.ColumnConstraints;
 public class Controller {
 	
 	private Form gui;
+	
+	private Bookshelf bookshelf;
 
 	public Controller(Form form){
 		gui = form;
+		bookshelf = new Bookshelf();
 	}
 	
 	/**
@@ -18,6 +23,15 @@ public class Controller {
 	public void setup(){
 		gui.getCenter().setText("No book info is yet available. Submit some!");
 		constrain(gui.getGroups());
+		
+		gui.getMasterCheck().selectedProperty().addListener(new ChangeListener<Boolean>() {
+		    @Override
+		    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+		        for (InputGroup group: gui.getGroups()){
+		        	group.getCheck().setSelected(newValue);
+		        }
+		    }
+		});
 	}
 	
 	/**
@@ -60,6 +74,21 @@ public class Controller {
 			String[] genres = gui.getGenre().getText().split(", ");						
 			Book newBook = createBook(genres);
 			gui.updateInfo(newBook);
+			try{
+				bookshelf.addBook(newBook);
+			}
+			catch (IllegalArgumentException i){
+				Alert alreadyExists = new Alert(AlertType.WARNING,i.getMessage());
+				alreadyExists.setHeaderText("Already Exists");
+				alreadyExists.setTitle("Warning");
+				return alreadyExists;
+			}
+			catch (NullPointerException n){
+				Alert nullData = new Alert(AlertType.ERROR,n.getMessage());
+				nullData.setHeaderText("Invalid Data");
+				nullData.setTitle("Error");
+				return nullData;
+			}
 			gui.clearFields();
 			//System.out.println(newBook.toString());
 			status = new Alert(AlertType.INFORMATION, "The book has been submitted!");

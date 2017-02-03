@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 
 import javafx.scene.control.Alert;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.ColumnConstraints;
 
@@ -29,7 +28,6 @@ public class Controller {
 
 		int longest = 0;
 		for (InputGroup group : groups) {
-			System.out.println(group.getDescriptor().getLayoutBounds().getWidth());
 			String text = group.getDescriptor().getText();
 			if (text.length() > longest) {
 				longest = text.length();
@@ -43,35 +41,48 @@ public class Controller {
 	}
 	
 	public boolean validateFields(ArrayList<InputGroup> groups) {
+		boolean valid = true;
 		for (InputGroup group : groups) {
 			if (!group.validate()) {
-				return false;
+				valid = false;
+				group.showValidity(false);
+			}
+			else{
+				group.showValidity(true);
 			}
 		}
-		return true;
-		//return (title.validate() && author.validate() && genre.validate() && rating.validate(true));
-		//return (validate(title) && validate(author) && validate(genre) && validate(rating));
+		return valid;
 	}
 	
 	public Alert submit() {
-		gui.getGenre().getSubmit().fire();
-		if (validateFields(gui.getGroups())) {	
-			gui.updateInfo();
+		Alert status;
+		if (validateFields(gui.getGroups())) {
+			String[] genres = gui.getGenre().getText().split(", ");						
+			Book newBook = createBook(genres);
+			gui.updateInfo(newBook);
 			gui.clearFields();
-			Book newBook = createBook();
 			//System.out.println(newBook.toString());
-			return new Alert(AlertType.INFORMATION, "The book has been submitted!");
+			status = new Alert(AlertType.INFORMATION, "The book has been submitted!");
+			status.setHeaderText("Successful Submission");
 		} else {
-			return new Alert(AlertType.ERROR, "One or more fields are invalid. All fields must contain info, and Rating must have a numeric value between 0 and 10 inclusive. Only partial data has been accepted, and the book was not submitted.");
+			status = new Alert(AlertType.ERROR, "One or more fields are invalid. All fields must contain info, and Rating must have a numeric value between 0 and 10 inclusive. Only partial data has been accepted, and the book was not submitted.");
+			status.setHeaderText("Invalid Submission");
 		}
+		status.setTitle("Submission");
+		return status;
 	}
 	
-	private Book createBook() {
+	private Book createBook(String[] genres) {
 		Book newBook = new Book();
+		
 		newBook.setTitle(gui.getTitle().getText());
 		newBook.setAuthor(gui.getAuthor().getText());
-		newBook.setGenre(gui.getGenreList());
+		newBook.setGenre(genres);
 		newBook.setRating(gui.getRating().getNumber());
+		newBook.setTimesRead((int) gui.getTimesRead().getNumber());
+		newBook.setPageCount((int) gui.getPageCount().getNumber());
+		newBook.setPubDate(gui.getPubDate().getDate());
+		
 		return newBook;
 	}
 	

@@ -2,15 +2,32 @@ import javafx.scene.control.TextField;
 
 public class ValidityTextField extends TextField {
 
+	private boolean optional; //If the contents are not required, then verification will skip the isEmpty() check.
 	private boolean numeric;
 	private float min;
 	private float max;
+	
+	private Validator validator;
 
 	public ValidityTextField(String text, boolean numeric, float min, float max) {
 		setText(text);
 		this.numeric = numeric;
 		this.min = min;
 		this.max = max;
+		
+		if (!optional){
+			validator = new Validator(){
+				
+				@Override
+				public boolean validate(String data){
+					return validateEmpty(data);
+				}
+			};
+		}
+		else{
+			validator = new Validator();
+		}
+
 	}
 	
 	public ValidityTextField(String text, float min, float max){
@@ -31,27 +48,31 @@ public class ValidityTextField extends TextField {
 	 * @return 
 	 */
 	public boolean validate(boolean allowEmpty){
-		if (!allowEmpty){
-			if (getText().isEmpty()){
+		if(numeric){
+			if(validator.validate(getText())){
+				float value = Float.valueOf(getText());
+				return (min <= value && value <= max);
+			}
+			else{
 				return false;
 			}
 		}
-		if (numeric){
-			try{
-				Float.valueOf(getText()); //If the text is a valid float value.
-				return true;
-			}
-			catch (NumberFormatException e){
-				return false;
-			}
+		else{
+			return validator.validate(getText());
 		}
-		return true;
 	}
 	
 	public boolean validate(){
 		return validate(false);
 	}
 
+	public void setValidator(Validator validator){
+		this.validator = validator;
+	}
+	
+	public Validator getValidator(){
+		return validator;
+	}
 	
 	public boolean isNumeric() {
 		return numeric;
